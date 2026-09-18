@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0f672533-ee6e-47dc-bd26-10a6231cc47c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/client/CustomerClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/client/ProductClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/dto/CustomerResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/dto/ProductResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdeaProjects/review-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/IdeaProjects/review-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/ReviewServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/ReviewServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/java/com/ecommerce/reviewservice/service/ReviewService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdeaProjects/review-service/src/test/java/com/ecommerce/reviewservice/service/ReviewServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/test/java/com/ecommerce/reviewservice/service/ReviewServiceTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3JVHky6NNOwTjlTxWxhdQnsbK3U" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Artifacts",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="ReviewServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="review-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.ecommerce.reviewservice.ReviewServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10315.125" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10315.125" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0f672533-ee6e-47dc-bd26-10a6231cc47c" name="Changes" comment="" />
+      <created>1789739462810</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1789739462810</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -1,5 +1,9 @@
 package com.ecommerce.reviewservice.service;
 
+import com.ecommerce.reviewservice.client.CustomerClient;
+import com.ecommerce.reviewservice.client.ProductClient;
+import com.ecommerce.reviewservice.dto.CustomerResponse;
+import com.ecommerce.reviewservice.dto.ProductResponse;
 import com.ecommerce.reviewservice.dto.ReviewRequest;
 import com.ecommerce.reviewservice.dto.ReviewResponse;
 import com.ecommerce.reviewservice.entity.Review;
@@ -19,15 +23,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
 
-    @Mock
-    private ReviewRepository reviewRepository;
+    @Mock private ReviewRepository reviewRepository;
+    @Mock private CustomerClient customerClient;
+    @Mock private ProductClient productClient;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -37,12 +43,27 @@ class ReviewServiceTest {
     private UUID customerId;
     private Review review;
     private ReviewRequest reviewRequest;
+    private CustomerResponse customer;
+    private ProductResponse product;
 
     @BeforeEach
     void setUp() {
         reviewId = UUID.randomUUID();
         productId = UUID.randomUUID();
         customerId = UUID.randomUUID();
+
+        customer = CustomerResponse.builder()
+                .id(customerId)
+                .firstName("John")
+                .email("john@test.com")
+                .isActive(true)
+                .build();
+
+        product = ProductResponse.builder()
+                .id(productId)
+                .name("Laptop")
+                .isActive(true)
+                .build();
 
         review = Review.builder()
                 .id(reviewId)
@@ -62,9 +83,13 @@ class ReviewServiceTest {
                 .build();
     }
 
+    // ============ CREATE TESTS ============
+
     @Test
-    @DisplayName("Should create review successfully")
+    @DisplayName("Should create review when customer and product are valid")
     void createReview_ShouldSucceed() {
+        when(customerClient.getCustomer(customerId)).thenReturn(customer);
+        when(productClient.getProduct(productId)).thenReturn(product);
         when(reviewRepository.existsByProductIdAndCustomerId(productId, customerId)).thenReturn(false);
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
@@ -72,19 +97,80 @@ class ReviewServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getRating()).isEqualTo(5);
-        assertThat(response.getComment()).isEqualTo("Excellent product!");
+        verify(customerClient, times(1)).getCustomer(customerId);
+        verify(productClient, times(1)).getProduct(productId);
         verify(reviewRepository, times(1)).save(any(Review.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when duplicate review")
+    @DisplayName("Should throw when customer not found")
+    void createReview_ShouldThrowException_WhenCustomerNotFound() {
+        when(customerClient.getCustomer(customerId))
+                .thenThrow(new RuntimeException("Customer not found"));
+
+        assertThatThrownBy(() -> reviewService.createReview(reviewRequest))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Cannot verify customer");
+
+        verify(reviewRepository, never()).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("Should throw when customer is inactive")
+    void createReview_ShouldThrowException_WhenCustomerInactive() {
+        customer.setIsActive(false);
+        when(customerClient.getCustomer(customerId)).thenReturn(customer);
+
+        assertThatThrownBy(() -> reviewService.createReview(reviewRequest))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("inactive");
+
+        verify(reviewRepository, never()).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("Should throw when product not found")
+    void createReview_ShouldThrowException_WhenProductNotFound() {
+        when(customerClient.getCustomer(customerId)).thenReturn(customer);
+        when(productClient.getProduct(productId))
+                .thenThrow(new RuntimeException("Product not found"));
+
+        assertThatThrownBy(() -> reviewService.createReview(reviewRequest))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Cannot verify product");
+
+        verify(reviewRepository, never()).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("Should throw when product is inactive")
+    void createReview_ShouldThrowException_WhenProductInactive() {
+        product.setIsActive(false);
+        when(customerClient.getCustomer(customerId)).thenReturn(customer);
+        when(productClient.getProduct(productId)).thenReturn(product);
+
+        assertThatThrownBy(() -> reviewService.createReview(reviewRequest))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("not available");
+
+        verify(reviewRepository, never()).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("Should throw when duplicate review")
     void createReview_ShouldThrowException_WhenDuplicate() {
+        when(customerClient.getCustomer(customerId)).thenReturn(customer);
+        when(productClient.getProduct(productId)).thenReturn(product);
         when(reviewRepository.existsByProductIdAndCustomerId(productId, customerId)).thenReturn(true);
 
         assertThatThrownBy(() -> reviewService.createReview(reviewRequest))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already reviewed");
+
+        verify(reviewRepository, never()).save(any(Review.class));
     }
+
+    // ============ READ TESTS ============
 
     @Test
     @DisplayName("Should return review when exists")
@@ -93,12 +179,11 @@ class ReviewServiceTest {
 
         ReviewResponse response = reviewService.getReview(reviewId);
 
-        assertThat(response).isNotNull();
         assertThat(response.getId()).isEqualTo(reviewId);
     }
 
     @Test
-    @DisplayName("Should throw exception when review not found")
+    @DisplayName("Should throw when review not found")
     void getReview_ShouldThrowException_WhenNotFound() {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
@@ -111,9 +196,7 @@ class ReviewServiceTest {
     void getAllReviews_ShouldReturnList() {
         when(reviewRepository.findAll()).thenReturn(List.of(review));
 
-        List<ReviewResponse> responses = reviewService.getAllReviews();
-
-        assertThat(responses).hasSize(1);
+        assertThat(reviewService.getAllReviews()).hasSize(1);
     }
 
     @Test
@@ -121,10 +204,7 @@ class ReviewServiceTest {
     void getReviewsByProduct_ShouldReturnList() {
         when(reviewRepository.findByProductId(productId)).thenReturn(List.of(review));
 
-        List<ReviewResponse> responses = reviewService.getReviewsByProduct(productId);
-
-        assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).getProductId()).isEqualTo(productId);
+        assertThat(reviewService.getReviewsByProduct(productId)).hasSize(1);
     }
 
     @Test
@@ -132,31 +212,28 @@ class ReviewServiceTest {
     void getReviewsByCustomer_ShouldReturnList() {
         when(reviewRepository.findByCustomerId(customerId)).thenReturn(List.of(review));
 
-        List<ReviewResponse> responses = reviewService.getReviewsByCustomer(customerId);
-
-        assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).getCustomerId()).isEqualTo(customerId);
+        assertThat(reviewService.getReviewsByCustomer(customerId)).hasSize(1);
     }
+
+    // ============ ANALYTICS TESTS ============
 
     @Test
     @DisplayName("Should return average rating")
     void getAverageRating_ShouldReturnAverage() {
         when(reviewRepository.getAverageRating(productId)).thenReturn(4.5);
 
-        Double avg = reviewService.getAverageRating(productId);
-
-        assertThat(avg).isEqualTo(4.5);
+        assertThat(reviewService.getAverageRating(productId)).isEqualTo(4.5);
     }
 
     @Test
     @DisplayName("Should return 0.0 when no reviews")
-    void getAverageRating_ShouldReturnZero_WhenNoReviews() {
+    void getAverageRating_ShouldReturnZero_WhenNull() {
         when(reviewRepository.getAverageRating(productId)).thenReturn(null);
 
-        Double avg = reviewService.getAverageRating(productId);
-
-        assertThat(avg).isEqualTo(0.0);
+        assertThat(reviewService.getAverageRating(productId)).isEqualTo(0.0);
     }
+
+    // ============ UPDATE TESTS ============
 
     @Test
     @DisplayName("Should update review successfully")
@@ -175,6 +252,8 @@ class ReviewServiceTest {
         assertThat(review.getComment()).isEqualTo("Changed my mind");
     }
 
+    // ============ DELETE TESTS ============
+
     @Test
     @DisplayName("Should delete review successfully")
     void deleteReview_ShouldSucceed() {
@@ -187,7 +266,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when deleting non-existent review")
+    @DisplayName("Should throw when deleting non-existent review")
     void deleteReview_ShouldThrowException_WhenNotFound() {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 

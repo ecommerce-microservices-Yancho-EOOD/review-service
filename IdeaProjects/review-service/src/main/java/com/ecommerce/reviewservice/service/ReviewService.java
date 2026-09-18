@@ -1,5 +1,9 @@
 package com.ecommerce.reviewservice.service;
 
+import com.ecommerce.reviewservice.client.CustomerClient;
+import com.ecommerce.reviewservice.client.ProductClient;
+import com.ecommerce.reviewservice.dto.CustomerResponse;
+import com.ecommerce.reviewservice.dto.ProductResponse;
 import com.ecommerce.reviewservice.dto.ReviewRequest;
 import com.ecommerce.reviewservice.dto.ReviewResponse;
 import com.ecommerce.reviewservice.entity.Review;
@@ -23,20 +27,66 @@ import java.util.UUID;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final CustomerClient customerClient;   // ← NEW
+    private final ProductClient productClient;     // ← NEW
 
-    // ============ CREATE ============
+    // ============ CREATE REVIEW ============
     @Transactional
     public ReviewResponse createReview(ReviewRequest request) {
         log.info("Creating review for product: {} by customer: {}",
                 request.getProductId(), request.getCustomerId());
 
-        // Check if customer already reviewed this product
+        // ============ STEP 1: VERIFY CUSTOMER ============
+        CustomerResponse customer;
+        try {
+            customer = customerClient.getCustomer(request.getCustomerId());
+            if (customer == null) {
+                throw new BusinessException("Customer not found", "CUSTOMER_NOT_FOUND");
+            }
+            if (!Boolean.TRUE.equals(customer.getIsActive())) {
+                throw new BusinessException("Customer account is inactive", "CUSTOMER_INACTIVE");
+            }
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to verify customer: {}", e.getMessage());
+            throw new BusinessException(
+                    "Cannot verify customer: " + request.getCustomerId(),
+                    "CUSTOMER_VERIFICATION_FAILED");
+        }
+
+        log.info("Customer verified: {}", customer.getEmail());
+
+        // ============ STEP 2: VERIFY PRODUCT ============
+        ProductResponse product;
+        try {
+            product = productClient.getProduct(request.getProductId());
+            if (product == null) {
+                throw new BusinessException("Product not found", "PRODUCT_NOT_FOUND");
+            }
+            if (!Boolean.TRUE.equals(product.getIsActive())) {
+                throw new BusinessException("Product is not available", "PRODUCT_INACTIVE");
+            }
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to verify product: {}", e.getMessage());
+            throw new BusinessException(
+                    "Cannot verify product: " + request.getProductId(),
+                    "PRODUCT_VERIFICATION_FAILED");
+        }
+
+        log.info("Product verified: {}", product.getName());
+
+        // ============ STEP 3: CHECK FOR DUPLICATE ============
         if (reviewRepository.existsByProductIdAndCustomerId(
                 request.getProductId(), request.getCustomerId())) {
             throw new BusinessException(
-                    "Customer has already reviewed this product", "DUPLICATE_REVIEW");
+                    "Customer has already reviewed this product",
+                    "DUPLICATE_REVIEW");
         }
 
+        // ============ STEP 4: CREATE REVIEW ============
         Review review = Review.builder()
                 .productId(request.getProductId())
                 .customerId(request.getCustomerId())
@@ -47,7 +97,8 @@ public class ReviewService {
                 .build();
 
         Review saved = reviewRepository.save(review);
-        log.info("Review created with ID: {}", saved.getId());
+        log.info("Review created: {}", saved.getId());
+
         return toResponse(saved);
     }
 
