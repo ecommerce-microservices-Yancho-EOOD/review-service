@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0f672533-ee6e-47dc-bd26-10a6231cc47c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/IdeaProjects/review-service/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/IdeaProjects/review-service/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
